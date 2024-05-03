@@ -1,14 +1,12 @@
-# Sử dụng phiên bản cũ của nginx có biết đến lỗ hổng bảo mật
-FROM nginx:1.16.0
+FROM nginx:latest
 
-# Cài đặt phần mềm có lỗ hổng bảo mật
-RUN apt-get update && apt-get install -y curl vulnerable-package
+# Cài đặt một gói dễ bị tấn công
+RUN apt-get update && apt-get install -y libxml2-dev
 
-# Cấu hình không an toàn (ví dụ: mật khẩu mặc định)
-RUN echo "admin:admin" | chpasswd
+# Sao chép một tệp cấu hình không an toàn
+COPY insecure-config.conf /etc/nginx/conf.d/default.conf
 
-# Mở các cổng không an toàn
-EXPOSE 80 443
+# Chạy nginx với quyền root
+USER root
 
-# Thực hiện các cấu hình không an toàn khác
-COPY insecure-config.conf /etc/nginx/nginx.conf
+CMD ["nginx", "-g", "daemon off;"]
